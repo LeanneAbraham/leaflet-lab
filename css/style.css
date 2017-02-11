@@ -1,1 +1,13 @@
 /*Stylesheet by Leanne Abrahan, Spring 2017*/
+table, th, td {
+   border: .5px solid black;
+   width: 400px;
+}
+#mapid {
+  height: 200px;
+  width: 750px;
+}
+
+/*table {
+    border-collapse: collapse;
+}*/
