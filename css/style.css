@@ -14,3 +14,16 @@
     background-color: #a0a0a0;
     float: left;
 }
+body {
+  padding: .20px;
+}
+leaflet-popup-content {
+    margin: .1em;
+}
+p {
+  line-height: 1.8em;
+  font-family: sans-serif;
+  padding-left: 10px;
+  padding-right: 10px;
+  font-size: 1em;
+}
