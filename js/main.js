@@ -4,11 +4,11 @@
 function createMap(){
     //create the map
     var map = L.map('mapid', {
-        //center: [0, 150],
-        zoom: 5
+        center: [20, 40],
+        zoom: 2
     });
-    map.fitBounds([[40, -20],[-40, 100]]);
-    //add OSM base tilelayer
+    //map.fitBounds([[40, -20],[-40, 100]]);
+    //add OSM base tilelayer to map
     L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
     	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     	subdomains: 'abcd',
@@ -19,30 +19,18 @@ function createMap(){
     //call getData function
     getData(map);
     };
-//function to attach popups to each mapped feature
-// function onEachFeature(feature, layer) {
-//     //no property named popupContent; instead, create html string with all properties
-//     var popupContent = "";
-//     if (feature.properties) {
-//         //loop to add feature property names and values to html string
-//         for (var property in feature.properties){
-//             popupContent += "<p>" + property + ": " + feature.properties[property] + "</p>";
-//         }
-//         layer.bindPopup(popupContent);
-//     };
-// };
-//function to retrieve the data and place it on the map
-//formatting for proportional symbols
-// var geojsonMarkerOptions = {
-//     radius: 8,
-//     fillColor: "#ff7800",
-//     color: "#000",
-//     weight: 1,
-//     opacity: 1,
-//     fillOpacity: 0.8
-// };
 
-
+//Step 2: Import GeoJSON data
+function getData(map){
+    //load the data
+    $.ajax("data/refcamps.geojson", {
+        dataType: "json",
+        success: function(response){
+            //call function to create proportional symbols
+            createPropSymbols(response, map);
+        }
+    });
+};
 //Step 3: Add circle markers for point features to the map
 function createPropSymbols(data, map){
     //Step 4: Determine which attribute to visualize with proportional symbols
@@ -56,8 +44,7 @@ function createPropSymbols(data, map){
         opacity: 1,
         fillOpacity: 0.5
     };
-
-    //Example 1.2 line 13...create a Leaflet GeoJSON layer and add it to the map
+    //Create a Leaflet GeoJSON layer and add it to the map
      L.geoJson(data, {
          pointToLayer: function (feature, latlng) {
              //Step 5: For each feature, determine its value for the selected attribute
@@ -72,25 +59,23 @@ function createPropSymbols(data, map){
                  var area = attValue * scaleFactor;
                  //radius calculated based on area
                  var radius = Math.sqrt(area/Math.PI);
-
                  return radius;
-             };
+                };
              //create circle markers
              return L.circleMarker(latlng, geojsonMarkerOptions);
          }
-     }).addTo(map);
+    }).addTo(map);
 };
-
-//Step 2: Import GeoJSON data
-function getData(map){
-    //load the data
-    $.ajax("data/refcamps.geojson", {
-        dataType: "json",
-        success: function(response){
-            //call function to create proportional symbols
-            createPropSymbols(response, map);
+//function to attach popups to each mapped feature
+function onEachFeature(feature, layer) {
+    //no property named popupContent; instead, create html string with all properties
+    var popupContent = "";
+    if (feature.properties) {
+        //loop to add feature property names and values to html string
+        for (var property in feature.properties){
+            popupContent += "<p>" + property + ": " + feature.properties[property] + "</p>";
         }
-    });
+        layer.bindPopup(popupContent);
+    };
 };
-
 $(document).ready(createMap);
