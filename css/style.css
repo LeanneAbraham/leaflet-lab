@@ -5,7 +5,13 @@ table, th, td, {
 }
 #mapid {
   height: 400px;
-  width: 750px;
+  width: 80%;
+}
+#panel {
+    width: 20%;
+    padding: 20px;
+    display: inline-block;
+    vertical-align: top;
 }
 
 /*table {
