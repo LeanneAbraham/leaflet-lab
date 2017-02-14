@@ -1,4 +1,3 @@
-/* Example from Leaflet Quick Start Guide*/
 //this creates the map within a div at the set zoom and coordinates
 var mymap = L.map('mapid').setView([39.75621, -104.99404],10);
 
