@@ -1,13 +1,13 @@
 /*Stylesheet by Leanne Abrahan, Spring 2017*/
 #mapid {
   height: 400px;
-  width: 75%;
+  width: 70%;
   display: inline-block;
   vertical-align: top;
   float: right;
 }
 #panel {
-    width: 25%;
+    width: 30%;
     height: 400px;
     display: inline-block;
     vertical-align: top;
@@ -17,13 +17,27 @@
 body {
   padding: .20px;
 }
-leaflet-popup-content {
-    margin: .1em;
-}
 p {
   line-height: 1.8em;
   font-family: sans-serif;
   padding-left: 10px;
   padding-right: 10px;
   font-size: 1em;
+}
+div b {
+  font-size: 1.3em;
+  font-family: sans-serif;
+}
+.range-slider {
+  width: 100%;
+}
+#forward {
+  float: right;
+}
+#reverse {
+  float: left;
+}
+#button {
+  padding-left: 10px;
+  padding-right: 10px;
 }
