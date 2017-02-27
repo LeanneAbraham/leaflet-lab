@@ -28,8 +28,13 @@ div b {
   font-size: 1.3em;
   font-family: sans-serif;
 }
+#slider {
+  height: 60px;
+  text-align: center;
+  padding: 10px;
+}
 .range-slider {
-  width: 100%;
+  width: 90%;
 }
 #forward {
   float: right;
@@ -40,4 +45,18 @@ div b {
 #button {
   padding-left: 10px;
   padding-right: 10px;
+}
+#sidebar {
+  padding: 5px;
+  vertical-align: top;
+  overflow: hidden;
+}
+/*#legend {*/
+  overflow: hidden;
+  height: 100px;
+  width: 100%;
+  background-color: black;
+  position: absolute;
+  bottom: 0;
+  left: 0;
 }
