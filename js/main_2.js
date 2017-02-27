@@ -59,9 +59,9 @@ function createSequenceControls(map2, attributes){
           updatePropSymbols(map2, attributes[index]);
       });
   };
-
-  //Step 10: Resize proportional symbols according to new attribute values
+//Step 10: Resize proportional symbols according to new attribute values
 //updates the sidebar as you move through the slider
+//ONLY updates when you move through the slider
 function updatePropSymbols(map, attributes){
     map.eachLayer(function(layer){
       if (layer.feature && layer.feature.properties[attributes] && !layer.max){
@@ -71,14 +71,16 @@ function updatePropSymbols(map, attributes){
           //update each feature's radius based on new attribute values
           var radius = calcPropRadius(props[attributes]);
           layer.setRadius(radius);
-          //add city to popup content string
-          var popupContent = "<p><b>Country:</b> " + props.Country + "</p>";
           //add formatted attribute to panel content string
           var year = attributes;
-          popupContent += "<p><b>Population in " + year + ":</b> " + props[attributes] + "</p>";
-          var sidebarContent = "<p><b>Camp:</b> " + props.Camp + "</br>" + "<b>Country:</b> " + props.Country + "</br><b>Population in " + year +": </b>" + props[attributes] + "</p>";
-          //need to bind this to the sidebar
-          $("#sidebar").html(sidebarContent);
+          //add city to popup content string
+          var popupContent = "<p><b>Country:</b> " + props.Country + "</br><b>Camp: </b>"+ props.Camp + "</br><b>Population in " + year + ":</b> " + props[attributes] ;
+          // var sidebarContent = "<p><b>Camp:</b> " + props.Camp + "</br>" + "<b>Country:</b> " + props.Country + "</br><b>Population in " + year +": </b>" + props[attributes] + "</p>";
+          // //need to bind this to the sidebar
+          // $("#sidebar").html(sidebarContent);
+          // click: function(){
+          //     $("#sidebar").html(sidebarContent);
+          //     }
           //replace the layer popup
           layer.bindPopup(popupContent, {
               offset: new L.Point(0,-radius)
@@ -92,7 +94,6 @@ function getData(map){
     $.ajax("data/refcamps.geojson", {
         dataType: "json",
         success: function(response){
-
     //makes "attributes" equal to the process data response
     var attributes = processData(response);
     //call function to create proportional symbols
@@ -111,8 +112,6 @@ function getData(map){
             attributes.push(attribute);
           };
         };
-        //check result
-        // console.log(attributes);
         //returns the attributes to var attributes
         return attributes;
           };
@@ -134,7 +133,7 @@ function pointToLayer(feature, latlng, attributes){
     //Determine which attribute to visualize with proportional symbols
     var attribute = attributes[0];
     //check that attribute being called is correct one
-    console.log(attribute);
+    //console.log(attribute);
     //create marker style options
     var options = {
       radius: 10,
@@ -147,22 +146,10 @@ function pointToLayer(feature, latlng, attributes){
     //For each feature, determine its value for the selected attribute
     var attValue = Number(feature.properties[attribute]);
 
-    //calcualting the max value
-    // var maxPop = Math.max(attValue);
-    // console.log(maxPop);
-
     //Give each feature's circle marker a radius based on its attribute value
     options.radius = calcPropRadius(attValue);
     //create circle marker layer
     var symLayer = L.circleMarker(latlng, options);
-    //build popup content string
-    // var sidebarContent = "<p><b>Camp:</b> " + feature.properties.Camp + "</br>" + "<b>Country:</b> " + feature.properties.Country + "</br><b>Population in " + attribute +": </b>" + feature.properties[attribute] + "</p>";
-    //put the sidebar content in a seperate div
-    // var popupContent =  feature.properties.Camp
-    // //bind the popup to the circle marker, includes offset
-    // symLayer.bindPopup(popupContent, {
-    //   offset: new L.Point(0,-options.radius)
-    // });
     ///event listeners to open popup on hover and fill panel on click
     symLayer.on({
       mouseover: function(){
@@ -171,89 +158,62 @@ function pointToLayer(feature, latlng, attributes){
       mouseout: function(){
           this.closePopup();
       },
-      // click: function(){
-      //     $("#sidebar").html(sidebarContent);
-      //     }
-      });
+  });
+//return the circle marker to the L.geoJson pointToLayer option
+return symLayer;
     //return the circle marker to the L.geoJson pointToLayer option
     return symLayer;
   };
-  function createMaxCircle(feature, latlng, attributes){
-      //Determine which attribute to visualize with proportional symbols
-      // var attribute = attributes[0];
-      //check that attribute being called is correct one
-      //console.log(attribute);
-      //create marker style options
-      var options = {
-        radius: 10,
-        color: "#000",
-        weight: 2,
-        opacity: 1,
-        fillOpacity: 0
-      };
-      //For each feature, determine its value for the selected attribute
-      // var attValue = Number(feature.properties[attribute]);
-
-      //calcualting the max value
-      // var maxPop = Math.max(attValue);
-      // console.log(maxPop);
-
-      //creating blank arry to push attributes into
-      var attValues = []
-      //loop  ot push values into, i as variable keeps within loop
-      for (var i = 0; i < attributes.length; i++) {
-        //attributes i is the value that is at that index in the at the array
-        var attValue = Number(feature.properties[attributes[i]]);
-        attValues.push(attValue);
+//creates the maxium population data layer
+function createMaxCircle(feature, latlng, attributes){
+    //create max circle marker style
+    var options = {
+      radius: 10,
+      color: "#000",
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0
+    };
+    //creating blank arry to push attributes into
+    var attValues = []
+    //loop  to push values into and create an arry to figure out max pop from, i as variable keeps within loop
+    for (var i = 0; i < attributes.length; i++) {
+      //attributes i is the value that is at that index in the at the array
+      var attValue = Number(feature.properties[attributes[i]]);
+      //adds the values of the arrary into attValue each time goes through loop
+      attValues.push(attValue);
       }
-      // console.log(attValues);
-      var maxValue = Math.max.apply (null, attValues);
-      //console.log(maxValue);
-      feature.properties.max = maxValue
-
-      //Give each feature's circle marker a radius based on its attribute value
-      options.radius = calcPropRadius(maxValue);
-      //create circle marker layer
-      var maxSymLayer = L.circleMarker(latlng, options);
-      maxSymLayer.max = true
-      console.log(maxSymLayer);
-      //build popup content string
-      // var sidebarContent = "<p><b>Camp:</b> " + feature.properties.Camp + "</br>" + "<b>Country:</b> " + feature.properties.Country + "</br><b>Population in " + attribute +": </b>" + feature.properties[attribute] + "</p>";
-      //put the sidebar content in a seperate div
-      // var popupContent =  feature.properties.Camp
-      // //bind the popup to the circle marker, includes offset
-      // symLayer.bindPopup(popupContent, {
-      //   offset: new L.Point(0,-options.radius)
-      // });
-
-      //return the circle marker to the L.geoJson pointToLayer option
-      return maxSymLayer;
-    };
+    //finds the max value of each part of the array
+    var maxValue = Math.max.apply (null, attValues);
+    //adds the
+    feature.properties.max = maxValue
+    //Give each feature's circle marker a radius based on its attribute value
+    options.radius = calcPropRadius(maxValue);
+    //create circle marker layer
+    var maxSymLayer = L.circleMarker(latlng, options);
+    //adds max=true for all max layers
+    maxSymLayer.max = true
+    //return the circle marker to the L.geoJson pointToLayer option
+    return maxSymLayer;
+  };
 //making max circle markers
-//thisisntworking
 function maxCircle (data, map, attributes){
-  var maxOutline = {
-    radius: 10,
-    color: "#000",
-    weight: 3,
-    opacity: 1,
-    };
-  console.log(attributes);
 //adding these symbols to the map
   L.geoJson(data, {
       pointToLayer: function(feature, latlng){
+        //invokes createMaxCircle when maxCircle is called to create datalayer
         return createMaxCircle(feature, latlng, attributes);
       }
   }).addTo(map);
- createPropSymbols (data, map, attributes);
-}
+    createPropSymbols (data, map, attributes);
+};
 //Add circle markers for point features to the map
 function createPropSymbols(data, map, attributes){
 //create a Leaflet GeoJSON layer and add it to the map, this puts on the circle made in the point to layer function
-L.geoJson(data, {
+  L.geoJson(data, {
     pointToLayer: function(feature, latlng){
       return pointToLayer(feature, latlng, attributes);
     }
 }).addTo(map);
-};
+  };
 $(document).ready(createMap);
