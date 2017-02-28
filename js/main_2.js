@@ -58,6 +58,8 @@ function createSequenceControls(map2, attributes){
       //Step 9: pass new attribute to update symbols
           updatePropSymbols(map2, attributes[index]);
       });
+      //call outside of the click listeners the first time so the intial hover defaults to 2006
+      updatePropSymbols (map2, attributes[0]);
   };
 //Step 10: Resize proportional symbols according to new attribute values
 //updates the sidebar as you move through the slider
@@ -74,7 +76,7 @@ function updatePropSymbols(map, attributes){
           //add formatted attribute to panel content string
           var year = attributes;
           //add city to popup content string
-          var popupContent = "<p><b>Country:</b> " + props.Country + "</br><b>Camp: </b>"+ props.Camp + "</br><b>Population in " + year + ":</b> " + props[attributes] ;
+          var popupContent = "<p><b>Country:</b> " + props.Country + "</br><b>Camp: </b>"+ props.Camp + "</br><b>Population in " + year + ":</b> " + props[attributes] + " persons";
           // var sidebarContent = "<p><b>Camp:</b> " + props.Camp + "</br>" + "<b>Country:</b> " + props.Country + "</br><b>Population in " + year +": </b>" + props[attributes] + "</p>";
           // //need to bind this to the sidebar
           // $("#sidebar").html(sidebarContent);
@@ -129,7 +131,8 @@ function calcPropRadius(attValue) {
     return radius;
    };
 //function to convert markers to circle markers
-function pointToLayer(feature, latlng, attributes){
+function pointToLayer(feature, latlng, attributes, map){
+
     //Determine which attribute to visualize with proportional symbols
     var attribute = attributes[0];
     //check that attribute being called is correct one
@@ -154,13 +157,12 @@ function pointToLayer(feature, latlng, attributes){
     symLayer.on({
       mouseover: function(){
           this.openPopup();
+          console.log(this);
       },
       mouseout: function(){
           this.closePopup();
       },
   });
-//return the circle marker to the L.geoJson pointToLayer option
-return symLayer;
     //return the circle marker to the L.geoJson pointToLayer option
     return symLayer;
   };
@@ -212,7 +214,7 @@ function createPropSymbols(data, map, attributes){
 //create a Leaflet GeoJSON layer and add it to the map, this puts on the circle made in the point to layer function
   L.geoJson(data, {
     pointToLayer: function(feature, latlng){
-      return pointToLayer(feature, latlng, attributes);
+      return pointToLayer(feature, latlng, attributes, map);
     }
 }).addTo(map);
   };
