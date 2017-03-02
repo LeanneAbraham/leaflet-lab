@@ -1,19 +1,19 @@
 /*Stylesheet by Leanne Abrahan, Spring 2017*/
 #mapid {
   height: 400px;
-  width: 70%;
+  width: 100%;
   display: inline-block;
   vertical-align: top;
   float: right;
 }
-#panel {
+/*#panel {
     width: 30%;
     height: 400px;
     display: inline-block;
     vertical-align: top;
     background-color: #a0a0a0;
     float: left;
-}
+}*/
 body {
   padding: .20px;
 }
@@ -51,12 +51,27 @@ div b {
   vertical-align: top;
   overflow: hidden;
 }
-/*#legend {*/
-  overflow: hidden;
+/*.controls{
   height: 100px;
   width: 100%;
   background-color: black;
   position: absolute;
-  bottom: 0;
-  left: 0;
+}*/
+.slider {
+  width: 150%;
+  height: 100%;
+  background-color: rgba(255,255,255,0.8);
+  padding: 10px;
+  line-height: 45px;
+  text-align: center;
+  border: solid gray 1px;
+}
+.legend {
+  /*height: 15px;*/
+  background-color: rgba(255,255,255,0.8);
+  /*padding: 10px;*/
+  /*line-height: 145px;*/
+  text-align: center;
+  vertical-align: inherit;
+  border: solid gray 1px;
 }

@@ -21,7 +21,7 @@ function createMap(){
 //Step 1: Create new sequence controls aka the slider
 function createSequenceControls(map2, attributes){
     //create range input element (slider) type range turns the input into a slider
-      $('#slider').append('<input class="range-slider" type="range">');
+    createSliderOnMap (map2);
     //set slider attributes
       $('.range-slider').attr({
         max: 11,
@@ -30,7 +30,7 @@ function createSequenceControls(map2, attributes){
         step: 1
         });
     //creates slider buttons
-      $('#slider').append('<div id="button"><button class="skip" id="reverse">Reverse</button><button class="skip" id="forward">Forward</button></div>');
+      $('.slider').append('<div id="button"><button class="skip" id="reverse">Reverse</button><button class="skip" id="forward">Forward</button></div>');
       //Step 5: input listener for slider
         $('.range-slider').on('input', function(){
           //Step 6: get the new index value
@@ -54,8 +54,8 @@ function createSequenceControls(map2, attributes){
               };
           //Step 8: update slider
           $('.range-slider').val(index);
-      //Called in both skip button and slider event listener handlers
-      //Step 9: pass new attribute to update symbols
+          //Called in both skip button and slider event listener handlers
+          //Step 9: pass new attribute to update symbols
           updatePropSymbols(map2, attributes[index]);
       });
       //call outside of the click listeners the first time so the intial hover defaults to 2006
@@ -66,6 +66,7 @@ function createSequenceControls(map2, attributes){
 //ONLY updates when you move through the slider
 function updatePropSymbols(map, attributes){
     map.eachLayer(function(layer){
+      // createLegend (map, attributes);
       if (layer.feature && layer.feature.properties[attributes] && !layer.max){
         //!layer.max is only applying this to the layers that max isn't true
           //access feature properties
@@ -102,6 +103,7 @@ function getData(map){
     maxCircle(response, map, attributes);
     //calls the sequence controls
     createSequenceControls(map, attributes);
+    createLegend (map, attributes);
     //empty array to hold attributes
     function processData(data){
     var attributes = [];
@@ -157,7 +159,6 @@ function pointToLayer(feature, latlng, attributes, map){
     symLayer.on({
       mouseover: function(){
           this.openPopup();
-          console.log(this);
       },
       mouseout: function(){
           this.closePopup();
@@ -215,7 +216,52 @@ function createPropSymbols(data, map, attributes){
   L.geoJson(data, {
     pointToLayer: function(feature, latlng){
       return pointToLayer(feature, latlng, attributes, map);
-    }
-}).addTo(map);
+      }
+    }).addTo(map);
   };
+
+//Creating cumstom UI controls for the map beyond zoom
+function createSliderOnMap (map, attributes,map2){
+  var SequenceControl = L.Control.extend({
+      options: {
+          position: 'bottomleft'
+          },
+      //when this is added to the map create the container for the slider
+      onAdd: function (map) {
+          // create the control container div with a particular class name
+          var container = L.DomUtil.create('div', 'slider');
+          // ... initialize other DOM elements, add listeners, etc.
+          //create range input element (slider)
+           $(container).append('<input class="range-slider" type="range">');
+           //kill any mouse event listeners on the map
+           //NOT WORKING
+           $(container).on('pointerdown dblclick', function (e){
+               L.DomEvent.stopPropagation(e);
+             });
+          return container;
+      }
+  });
+  map.addControl(new SequenceControl());
+};
+//craete the legand div
+function createLegend(map, attributes, year){
+    // updatePropSymbols (map, attributes, year);
+
+    // createSequenceControls (map, attributes);
+    var LegendControl = L.Control.extend({
+        options: {
+            position: 'bottomright'
+        },
+        onAdd: function (map) {
+            // create the control container with a particular class name
+            var container = L.DomUtil.create('div', 'legend');
+
+            //PUT YOUR SCRIPT TO CREATE THE TEMPORAL LEGEND HERE
+            $(container).append("<p><b>Camp Populations in " + attributes [0] + "</b></p>");
+            return container;
+        }
+    });
+
+    map.addControl(new LegendControl());
+};
 $(document).ready(createMap);
