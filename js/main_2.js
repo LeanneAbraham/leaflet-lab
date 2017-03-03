@@ -35,7 +35,6 @@ function createSequenceControls(map2, attributes){
         $('.range-slider').on('input', function(){
           //Step 6: get the new index value
            var index = $(this).val();
-           updatePropSymbols(map2, attributes[index]);
         });
       //Step 5: click listener for buttons
         $('.skip').click(function(){
@@ -84,6 +83,12 @@ function updatePropSymbols(map, attributes){
           // click: function(){
           //     $("#sidebar").html(sidebarContent);
           //     }
+          //turns attribute years into an array
+          var singleYear = [attributes]
+          //retreive the id identifying the year in legend div
+          var legendYear = document.getElementById("legendYear");
+          //adds text to id in div
+          $("#legendYear").html(singleYear);
           //replace the layer popup
           layer.bindPopup(popupContent, {
               offset: new L.Point(0,-radius)
@@ -134,7 +139,6 @@ function calcPropRadius(attValue) {
    };
 //function to convert markers to circle markers
 function pointToLayer(feature, latlng, attributes, map){
-
     //Determine which attribute to visualize with proportional symbols
     var attribute = attributes[0];
     //check that attribute being called is correct one
@@ -219,7 +223,6 @@ function createPropSymbols(data, map, attributes){
       }
     }).addTo(map);
   };
-
 //Creating cumstom UI controls for the map beyond zoom
 function createSliderOnMap (map, attributes,map2){
   var SequenceControl = L.Control.extend({
@@ -235,19 +238,18 @@ function createSliderOnMap (map, attributes,map2){
            $(container).append('<input class="range-slider" type="range">');
            //kill any mouse event listeners on the map
            //NOT WORKING
-           $(container).on('pointerdown dblclick', function (e){
-               L.DomEvent.stopPropagation(e);
-             });
+           //kill any mouse event listeners on the map
+          $(container).on('mousedown dblclick', function(e){
+              L.DomEvent.stopPropagation(e);
+              //  L.DomEvent.preventDefault(evt);
+            });
           return container;
       }
   });
   map.addControl(new SequenceControl());
 };
 //craete the legand div
-function createLegend(map, attributes, year){
-    // updatePropSymbols (map, attributes, year);
-
-    // createSequenceControls (map, attributes);
+function createLegend(map, attributes){
     var LegendControl = L.Control.extend({
         options: {
             position: 'bottomright'
@@ -255,12 +257,19 @@ function createLegend(map, attributes, year){
         onAdd: function (map) {
             // create the control container with a particular class name
             var container = L.DomUtil.create('div', 'legend');
-
             //PUT YOUR SCRIPT TO CREATE THE TEMPORAL LEGEND HERE
-            $(container).append("<p><b>Camp Populations in " + attributes [0] + "</b></p>");
+            $(container).append("<p><b>Camp Populations in <span id=legendYear>"+attributes[0]+"</span></b></p>");
+            // var singleYear = [attributes]
+            // //retreive the id identifying the year in legend div
+            // var legendYear = document.getElementById("legendYear");
+            // //adds text to id in div
+            // $("#legendYear").html("attributes[0]");
+
             return container;
         }
     });
+    //start making legand symbols HERE
+
 
     map.addControl(new LegendControl());
 };
