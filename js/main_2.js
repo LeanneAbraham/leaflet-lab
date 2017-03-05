@@ -117,7 +117,7 @@ function getData(map){
     maxCircle(response, map, attributes);
     //calls the sequence controls
     createSequenceControls(map, attributes);
-    createLegend (map, attributes);
+    createLegend (map, attributes, response);
     //empty array to hold attributes
     function processData(data){
     var attributes = [];
@@ -248,18 +248,14 @@ function createSliderOnMap (map, attributes,map2){
            //kill any mouse event listeners on the map
            //NOT WORKING
            //kill any mouse event listeners on the map
-          // $(container).on('mousedown dblclick', function(e){
-          //     L.DomEvent.stopPropagation(e);
-              //  L.DomEvent.preventDefault(evt);
-            // });
-            L.DomEvent.disableClickPropagation(container);
+          L.DomEvent.disableClickPropagation(container);
           return container;
       }
   });
   map.addControl(new SequenceControl());
 };
 //craete the legand div
-function createLegend(map, attributes){
+function createLegend(map, attributes,response){
     var LegendControl = L.Control.extend({
         options: {
             position: 'bottomright'
@@ -274,30 +270,32 @@ function createLegend(map, attributes){
             $(container).append('<div id="temporal-legend">')
 
             //Step 1: start attribute legend svg string
-            var svg = '<svg id="attribute-legend" width="180px" height="180px">';
+            var svg = '<svg id="attribute-legend">';
 
             //array of circle names to base loop on
             var circles = ["max", "mean", "min"];
 
-          //Step 2: loop to add each circle and text to svg string
-          for (var i=0; i<circles.length; i++){
+        //Step 2: loop to add each circle and text to svg string
+        for (var i=0; i<circles.length; i++){
             //circle string
             svg += '<circle class="legend-circle" id="' + circles[i] +
-            '" fill="#F47821" fill-opacity="0.8" stroke="#000000" cx="50%"/>';
+            '" fill="#F47821" fill-opacity="1" stroke="#000000" radius="100px" cx="30"/>';
+
+            //text string
+            svg += '<text id="' + circles[i] + '-text" x="65" y="60"></text>';
             };
-            //close svg string
-            svg += "</svg>";
-          //add attribute legend svg to container
-          $(container).append(svg);
+        //close svg string
+        svg += "</svg>";
+      //add attribute legend svg to container
+      $(container).append(svg);
           //get the min, mean, max values as an object
-          //FUCK THIS GONNA MAKE SOME STATIC CIRCLES
-          var circleValues = getCircleValues(map, attributes);
+          //GONNA MAKE SOME STATIC CIRCLES
+          var circleValues = getCircleValues(map, attributes, response);
           for (var key in circleValues){
           //get the radius
           var radius = calcPropRadius(circleValues[key]);
-
-          //Step 3: assign the cy and r attributes
-          $('#'+key).attr({
+          //Step 3: assign the cy and r attributes based on the Key
+          $('#'+ key).attr({
               cy: 179 - radius,
               r: radius
                   });
@@ -309,33 +307,20 @@ function createLegend(map, attributes){
     map.addControl(new LegendControl());
 };
 //Calculate the max, mean, and min values for a given attribute
-function getCircleValues(map, attribute){
-    //start with min at highest possible and max at lowest possible number
-    var min = Infinity,
-        max = -Infinity;
-
-    var allValues = attribute
-    console.log(allValues);
-
-    map.eachLayer(function(layer){
-        //get the attribute value
-        if (layer.feature){
-            var attributeValue = Number(layer.feature.properties[attribute]);
-
-            //test for min
-            if (attributeValue < min){
-                min = attributeValue;
-            };
-
-            //test for max
-            if (attributeValue > max){
-                max = attributeValue;
-            };
-        };
-    });
-
-    //set mean
-    var mean = (max + min) / 2;
+function getCircleValues(map, attribute, response){
+    //calculate the min and max for entire dataset
+    var values = [];
+    for (var i = 0; i < response.features.length; ++i) {
+      for (var k = 0; k < attribute.length; ++k) {
+        //ignores camps before they became populated
+        if (+response.features[i].properties[attribute[k]] > 1)
+        values.push(response.features[i].properties[attribute[k]]);
+      }
+    }
+    var max = Math.max.apply(null, values);
+    var min = Math.min.apply(null, values);
+    //set mean round down
+    var mean = Math.floor((min + max)/2);
 
     //return values as an object
     return {

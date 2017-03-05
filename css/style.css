@@ -75,3 +75,7 @@ div b {
   border: solid gray 1px;
   padding: 0px;
 }
+.attribute-legend {
+    width: 100px;
+    height: 100px;
+}
