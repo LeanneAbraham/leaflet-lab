@@ -67,11 +67,11 @@ div b {
   border: solid gray 1px;
 }
 .legend {
-  /*height: 15px;*/
   background-color: rgba(255,255,255,0.8);
-  /*padding: 10px;*/
-  /*line-height: 145px;*/
+  /*height: 100px;*/
+  /*line-height: 500px;*/
   text-align: center;
-  vertical-align: inherit;
+  vertical-align: middle;
   border: solid gray 1px;
+  padding: 0px;
 }

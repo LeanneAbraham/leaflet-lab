@@ -1,10 +1,15 @@
 /* Map of GeoJSON data from refcamps.geojson */
 //function to instantiate the Leaflet map
 function createMap(){
+  var southWest = L.latLng(-90, -180),
+  northEast = L.latLng(90, 180),
+  bounds = L.latLngBounds(southWest, northEast);
     //create the map
     var map = L.map('mapid', {
         center: [15, 17],
-        zoom: 3
+        zoom: 3,
+        maxBounds: bounds,
+        maxBoundsViscosity:.7
     });
     //map.fitBounds([[40, -20],[-40, 100]]);
     //add OSM base tilelayer to map
@@ -30,12 +35,14 @@ function createSequenceControls(map2, attributes){
         step: 1
         });
     //creates slider buttons
-      $('.slider').append('<div id="button"><button class="skip" id="reverse">Reverse</button><button class="skip" id="forward">Forward</button></div>');
+      $('.slider').append('<div id="button"><button class="skip" id="reverse">Back</button><button class="skip" id="forward">Forward</button></div>');
       //Step 5: input listener for slider
-        $('.range-slider').on('input', function(){
+      //THIS ISN'T WORKING
+      $('.range-slider').on('input', function(){
           //Step 6: get the new index value
-           var index = $(this).val();
-        });
+          var index = $(this).val();
+          updatePropSymbols (map2, attributes[index]);
+      });
       //Step 5: click listener for buttons
         $('.skip').click(function(){
           //get the old index value
@@ -53,10 +60,11 @@ function createSequenceControls(map2, attributes){
               };
           //Step 8: update slider
           $('.range-slider').val(index);
+
           //Called in both skip button and slider event listener handlers
           //Step 9: pass new attribute to update symbols
           updatePropSymbols(map2, attributes[index]);
-      });
+          });
       //call outside of the click listeners the first time so the intial hover defaults to 2006
       updatePropSymbols (map2, attributes[0]);
   };
@@ -89,6 +97,7 @@ function updatePropSymbols(map, attributes){
           var legendYear = document.getElementById("legendYear");
           //adds text to id in div
           $("#legendYear").html(singleYear);
+
           //replace the layer popup
           layer.bindPopup(popupContent, {
               offset: new L.Point(0,-radius)
@@ -239,10 +248,11 @@ function createSliderOnMap (map, attributes,map2){
            //kill any mouse event listeners on the map
            //NOT WORKING
            //kill any mouse event listeners on the map
-          $(container).on('mousedown dblclick', function(e){
-              L.DomEvent.stopPropagation(e);
+          // $(container).on('mousedown dblclick', function(e){
+          //     L.DomEvent.stopPropagation(e);
               //  L.DomEvent.preventDefault(evt);
-            });
+            // });
+            L.DomEvent.disableClickPropagation(container);
           return container;
       }
   });
@@ -254,23 +264,84 @@ function createLegend(map, attributes){
         options: {
             position: 'bottomright'
         },
+        //make the legand title
         onAdd: function (map) {
             // create the control container with a particular class name
             var container = L.DomUtil.create('div', 'legend');
-            //PUT YOUR SCRIPT TO CREATE THE TEMPORAL LEGEND HERE
+            //legend Title
             $(container).append("<p><b>Camp Populations in <span id=legendYear>"+attributes[0]+"</span></b></p>");
-            // var singleYear = [attributes]
-            // //retreive the id identifying the year in legend div
-            // var legendYear = document.getElementById("legendYear");
-            // //adds text to id in div
-            // $("#legendYear").html("attributes[0]");
+            //add temporal legend div to container
+            $(container).append('<div id="temporal-legend">')
 
+            //Step 1: start attribute legend svg string
+            var svg = '<svg id="attribute-legend" width="180px" height="180px">';
+
+            //array of circle names to base loop on
+            var circles = ["max", "mean", "min"];
+
+          //Step 2: loop to add each circle and text to svg string
+          for (var i=0; i<circles.length; i++){
+            //circle string
+            svg += '<circle class="legend-circle" id="' + circles[i] +
+            '" fill="#F47821" fill-opacity="0.8" stroke="#000000" cx="50%"/>';
+            };
+            //close svg string
+            svg += "</svg>";
+          //add attribute legend svg to container
+          $(container).append(svg);
+          //get the min, mean, max values as an object
+          //FUCK THIS GONNA MAKE SOME STATIC CIRCLES
+          var circleValues = getCircleValues(map, attributes);
+          for (var key in circleValues){
+          //get the radius
+          var radius = calcPropRadius(circleValues[key]);
+
+          //Step 3: assign the cy and r attributes
+          $('#'+key).attr({
+              cy: 179 - radius,
+              r: radius
+                  });
+              };
             return container;
         }
     });
     //start making legand symbols HERE
-
-
     map.addControl(new LegendControl());
+};
+//Calculate the max, mean, and min values for a given attribute
+function getCircleValues(map, attribute){
+    //start with min at highest possible and max at lowest possible number
+    var min = Infinity,
+        max = -Infinity;
+
+    var allValues = attribute
+    console.log(allValues);
+
+    map.eachLayer(function(layer){
+        //get the attribute value
+        if (layer.feature){
+            var attributeValue = Number(layer.feature.properties[attribute]);
+
+            //test for min
+            if (attributeValue < min){
+                min = attributeValue;
+            };
+
+            //test for max
+            if (attributeValue > max){
+                max = attributeValue;
+            };
+        };
+    });
+
+    //set mean
+    var mean = (max + min) / 2;
+
+    //return values as an object
+    return {
+        max: max,
+        mean: mean,
+        min: min
+    };
 };
 $(document).ready(createMap);
