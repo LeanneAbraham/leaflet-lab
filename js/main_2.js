@@ -279,7 +279,7 @@ function createLegend(map, attributes,response){
         for (var i=0; i<circles.length; i++){
             //circle string
             svg += '<circle class="legend-circle" id="' + circles[i] +
-            '" fill="#F47821" fill-opacity="1" stroke="#000000" radius="100px" cx="30"/>';
+            '" fill-opacity=".4" fill="black" stroke="#000000"  cx="30"/>';
 
             //text string
             svg += '<text id="' + circles[i] + '-text" x="65" y="60"></text>';
@@ -297,8 +297,8 @@ function createLegend(map, attributes,response){
           //Step 3: assign the cy and r attributes based on the Key
           $('#'+ key).attr({
               cy: 179 - radius,
-              r: radius
-                  });
+              r: radius,
+                });
               };
             return container;
         }
