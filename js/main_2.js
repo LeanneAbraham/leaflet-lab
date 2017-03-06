@@ -17,7 +17,7 @@ function createMap(){
       }).addTo(map);
     //call getData function
     // getData(map);
-    toggleLayers (map);
+    getData (map);
     };
 //Step 1: Create new sequence controls aka the slider
 function createSequenceControls(map2, attributes){
@@ -107,7 +107,6 @@ function getData(map){
     //calls the sequence controls
     createSequenceControls(map, attributes);
     createLegend (map, attributes, response);
-    // toggleLayers (map, attributes);
     //empty array to hold attributes
     function processData(data){
     var attributes = [];
@@ -210,8 +209,13 @@ function maxCircle (data, map, attributes){
         //invokes createMaxCircle when maxCircle is called to create datalayer
         return createMaxCircle(feature, latlng, attributes);
       }
-  }).addTo(map);
+  })
+  var overlays = {
+    "<div id='toggle'>Max Camp</br>Populations</div>": maxLayer
+  }
+  // .addTo(map);
     createPropSymbols (data, map, attributes);
+    L.control.layers(null,overlays,{collapsed:false}).addTo(map);
 };
 //Add circle markers for point features to the map
 function createPropSymbols(data, map, attributes){
@@ -260,10 +264,9 @@ function createLegend(map, attributes,response){
 
             //array of circle names to base loop on
             var circles = {
-                absolute: 0,
-                max: 45,
-                mean: 65,
-                min: 90
+                max: 70,
+                mean: 90,
+                min: 115
             };
         //Step 2: loop to add each circle and text to svg string
         //loop to add each circle and text to svg string
@@ -274,6 +277,7 @@ function createLegend(map, attributes,response){
             //text string
             svg += '<text id="' + circle + '-text"fill="white" x="110" y="' + circles[circle]+'"></text>';
             };
+            svg += '<circle class="maxCircle" fill-opacity="0" fill="transparent" stroke="white" stroke-width="1" cx="60" cy="24" r="23"></circle><text id="maxCircle-text" fill="white" x="90" y="20"><tspanx="90" y="20">Maximum<tspan x="90" y="20">Refugee Camp<tspan x="90" y="20">Population</text>';
         //close svg string
         svg += "</svg>";
       //add attribute legend svg to container
@@ -288,16 +292,12 @@ function createLegend(map, attributes,response){
           // if (key.includes("m")
           //Step 3: assign the cy and r attributes based on the Key
           $(container).find('#'+ key).attr({
-              cy: 100-radius,
+              cy: 125-radius,
               r: radius,
                 });
           //Step 4: add legend text
           $(container).find('#'+key+'-text').text(Math.round(circleValues[key]/1000)*1000);
               };
-          //make absolute max opaque
-          // $(container).find("absolute").attr({
-          //     fill: #000,
-          //       });
 
             return container;
         }
@@ -320,20 +320,16 @@ function getCircleValues(map, attribute, response){
     var min = Math.min.apply(null, values);
     //set mean round down
     var mean = Math.floor((min + max)/2);
-    var absolute = Number(250000)
 
     //return values as an object
     return {
-      absolute: absolute,
       max: max,
       mean: mean,
       min: min
     };
 };
 //create toggle to turn max pop on/off
-function toggleLayers (map, attributes) {
-  getData (map, attributes);
-
-  L.control.layers().addTo(map);
-}
+// function toggleLayers (map, attributes) {
+//   L.control.layers().addTo(map);
+// }
 $(document).ready(createMap);
