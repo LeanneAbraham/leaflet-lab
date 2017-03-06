@@ -74,8 +74,6 @@ div b {
   vertical-align: middle;
   border: solid gray 1px;
   padding: 0px;
-}
-.attribute-legend {
-    width: 100px;
-    height: 100px;
+  height: 160px;
+  width: 160px;
 }

@@ -13,13 +13,12 @@ function createMap(){
     });
     //map.fitBounds([[40, -20],[-40, 100]]);
     //add OSM base tilelayer to map
-    L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
-    	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+    	attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
     	subdomains: 'abcd',
-    	minZoom: 0,
-    	maxZoom: 20,
-    	ext: 'png'
-    }).addTo(map);
+    	maxZoom: 10
+
+      }).addTo(map);
     //call getData function
     getData(map);
     };
@@ -270,7 +269,7 @@ function createLegend(map, attributes,response){
             $(container).append('<div id="temporal-legend">')
 
             //Step 1: start attribute legend svg string
-            var svg = '<svg id="attribute-legend">';
+            var svg = '<svg id="attribute-legend" width: "150px">';
 
             //array of circle names to base loop on
             var circles = ["max", "mean", "min"];
@@ -279,7 +278,7 @@ function createLegend(map, attributes,response){
         for (var i=0; i<circles.length; i++){
             //circle string
             svg += '<circle class="legend-circle" id="' + circles[i] +
-            '" fill-opacity=".4" fill="black" stroke="#000000"  cx="30"/>';
+            '" fill-opacity=".4" fill="#ff7800" stroke="#000000"  cx=25%/>';
 
             //text string
             svg += '<text id="' + circles[i] + '-text" x="65" y="60"></text>';
@@ -295,11 +294,14 @@ function createLegend(map, attributes,response){
           //get the radius
           var radius = calcPropRadius(circleValues[key]);
           //Step 3: assign the cy and r attributes based on the Key
-          $('#'+ key).attr({
-              cy: 179 - radius,
+          $(container).find('#'+ key).attr({
+              cy: 70-radius,
               r: radius,
                 });
               };
+              //Step 4: add legend text
+              $(container).find('#'+key+'-text').text(circleValues[key] + " persons");
+
             return container;
         }
     });
