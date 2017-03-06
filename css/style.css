@@ -1,20 +1,12 @@
 /*Stylesheet by Leanne Abrahan, Spring 2017*/
 #mapid {
-  height: 400px;
+  height: 500px;
   width: 100%;
   display: inline-block;
   vertical-align: top;
   float: right;
   position: fixed;
 }
-/*#panel {
-    width: 30%;
-    height: 400px;
-    display: inline-block;
-    vertical-align: top;
-    background-color: #a0a0a0;
-    float: left;
-}*/
 #header {
   font-size: 1.2em;
 }
@@ -25,21 +17,8 @@ body {
 .range-slider {
   width: 90%;
 }
-#forward {
-  float: right;
-}
-#reverse {
-  float: left;
-}
-#button {
-  padding-left: 10px;
-  padding-right: 10px;
-}
-#sidebar {
-  padding: 5px;
-  vertical-align: top;
-  overflow: hidden;
-}
+
+/*Style The appearance leaflet controls on the map*/
 .slider {
   width: 150%;
   height: 25px;
@@ -60,23 +39,24 @@ body {
   border: solid gray 1px;
   height: 240px;
   width: 200px;
-  font-size: 1.2em;
+  font-size: 1.1em;
 }
-.min, .mean, .max{
-  fill-opacity: 0.4;
-  fill: rgb(255, 120, 0);
-  stroke: rgb(0, 0, 0);
-}
-.leaflet-control-layers {
-  text-align: right;
-  background-color: rgba(0,0,0,0.7);
-  border-radius: 25px;
-  color: white;
-  vertical-align: middle;
+.leaflet-control-layers-expanded {
+  background-color: rgba(0,0,0,0.0);
   border: solid gray 1px;
   font-size: 1.2em;
 }
-/*slider*/
+.leaflet-control-layers-expanded {
+  background-color: rgba(0,0,0,0.7);
+  border-radius: 25px;
+  color: white;
+  text-align: center;
+  vertical-align: middle;
+  border: solid gray 1px;
+  padding: 10px;
+
+}
+/*slider styles for across browsers*/
 input[type=range] {
     /*removes default webkit styles*/
     -webkit-appearance: none;

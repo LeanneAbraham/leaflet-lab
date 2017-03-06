@@ -5,8 +5,13 @@ function createMap(){
     var map = L.map('mapid', {
         center: [15, 17],
         zoom: 3,
+        zoomControl: false
         // layers:[maxLayer]
     });
+    //Reposition zoom controls
+    L.control.zoom({
+     position:'topleft'
+      }).addTo(map);
     //map.fitBounds([[40, -20],[-40, 100]]);
     //add OSM base tilelayer to map
     L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
@@ -211,7 +216,7 @@ function maxCircle (data, map, attributes){
       }
   })
   var overlays = {
-    "<div id='toggle'>Max Camp</br>Populations</div>": maxLayer
+    "<div id='toggle'>Maximum<br>Camp</br>Populations</div>": maxLayer
   }
   // .addTo(map);
     createPropSymbols (data, map, attributes);
@@ -230,7 +235,7 @@ function createPropSymbols(data, map, attributes){
 function createSliderOnMap (map, attributes){
   var SequenceControl = L.Control.extend({
       options: {
-          position: 'bottomleft'
+          position: 'bottomright'
           },
       //when this is added to the map create the container for the slider
       onAdd: function (map,attributes) {
@@ -277,7 +282,7 @@ function createLegend(map, attributes,response){
             //text string
             svg += '<text id="' + circle + '-text"fill="white" x="110" y="' + circles[circle]+'"></text>';
             };
-            svg += '<circle class="maxCircle" fill-opacity="0" fill="transparent" stroke="white" stroke-width="1" cx="60" cy="24" r="23"></circle><text id="maxCircle-text" fill="white" x="90" y="20"><tspanx="90" y="20">Maximum<tspan x="90" y="20">Refugee Camp<tspan x="90" y="20">Population</text>';
+            svg += '<circle class="maxCircle" fill-opacity="0" fill="transparent" stroke="white" stroke-width="1" cx="60" cy="24" r="23"></circle><text id="maxCircle-text" fill="white" x="95" y="20"><tspan x="95" y="10">Maximum<tspan x="95" y="25">Refugee Camp<tspan x="95" y="40">Population</text>';
         //close svg string
         svg += "</svg>";
       //add attribute legend svg to container
