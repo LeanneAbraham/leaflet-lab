@@ -1,15 +1,11 @@
 /* Map of GeoJSON data from refcamps.geojson */
 //function to instantiate the Leaflet map
 function createMap(){
-  var southWest = L.latLng(-90, -180),
-  northEast = L.latLng(90, 180),
-  bounds = L.latLngBounds(southWest, northEast);
     //create the map
     var map = L.map('mapid', {
         center: [15, 17],
         zoom: 3,
-        maxBounds: bounds,
-        maxBoundsViscosity:.7
+        // layers:[maxLayer]
     });
     //map.fitBounds([[40, -20],[-40, 100]]);
     //add OSM base tilelayer to map
@@ -20,7 +16,8 @@ function createMap(){
 
       }).addTo(map);
     //call getData function
-    getData(map);
+    // getData(map);
+    toggleLayers (map);
     };
 //Step 1: Create new sequence controls aka the slider
 function createSequenceControls(map2, attributes){
@@ -34,7 +31,7 @@ function createSequenceControls(map2, attributes){
         step: 1
         });
     //creates slider buttons
-      $('.slider').append('<div id="button"><button class="skip" id="reverse">Back</button><button class="skip" id="forward">Forward</button></div>');
+      // $('.slider').append('<div id="button"><button class="skip" id="reverse">Back</button><button class="skip" id="forward">Forward</button></div>');
       //Step 5: input listener for slider
       //THIS ISN'T WORKING
       $('.range-slider').on('input', function(){
@@ -46,20 +43,19 @@ function createSequenceControls(map2, attributes){
         $('.skip').click(function(){
           //get the old index value
           var index = $('.range-slider').val();
-          //Step 6: increment or decrement depending on button clicked
-          if ($(this).attr('id') == 'forward'){
-              index++;
+          // //Step 6: increment or decrement depending on button clicked
+          // if ($(this).attr('id') == 'forward'){
+          //     index++;
             //Step 7: if past the last attribute, wrap around to first attribute
-              index = index > 11 ? 0 : index;
-              }
-          else if ($(this).attr('id') == 'reverse'){
-              index--;
+              // index = index > 11 ? 0 : index;
+              // }
+          // else if ($(this).attr('id') == 'reverse'){
+          //     index--;
             //Step 7: if past the first attribute, wrap around to last attribute
-              index = index < 0 ? 11 : index;
-              };
+              // index = index < 0 ? 11 : index;
+              // };
           //Step 8: update slider
           $('.range-slider').val(index);
-
           //Called in both skip button and slider event listener handlers
           //Step 9: pass new attribute to update symbols
           updatePropSymbols(map2, attributes[index]);
@@ -84,12 +80,6 @@ function updatePropSymbols(map, attributes){
           var year = attributes;
           //add city to popup content string
           var popupContent = "<p><b>Country:</b> " + props.Country + "</br><b>Camp: </b>"+ props.Camp + "</br><b>Population in " + year + ":</b> " + props[attributes] + " persons";
-          // var sidebarContent = "<p><b>Camp:</b> " + props.Camp + "</br>" + "<b>Country:</b> " + props.Country + "</br><b>Population in " + year +": </b>" + props[attributes] + "</p>";
-          // //need to bind this to the sidebar
-          // $("#sidebar").html(sidebarContent);
-          // click: function(){
-          //     $("#sidebar").html(sidebarContent);
-          //     }
           //turns attribute years into an array
           var singleYear = [attributes]
           //retreive the id identifying the year in legend div
@@ -117,6 +107,7 @@ function getData(map){
     //calls the sequence controls
     createSequenceControls(map, attributes);
     createLegend (map, attributes, response);
+    // toggleLayers (map, attributes);
     //empty array to hold attributes
     function processData(data){
     var attributes = [];
@@ -154,9 +145,9 @@ function pointToLayer(feature, latlng, attributes, map){
     //create marker style options
     var options = {
       radius: 10,
-      fillColor: "#ff7800",
-      color: "#000",
-      weight: .6,
+      fillColor: "#FFC125",
+      color: "white",
+      weight: 0,
       opacity: 1,
       fillOpacity: 0.5
     };
@@ -184,8 +175,8 @@ function createMaxCircle(feature, latlng, attributes){
     //create max circle marker style
     var options = {
       radius: 10,
-      color: "#000",
-      weight: 2,
+      color: "#FFF",
+      weight: 1,
       opacity: 1,
       fillOpacity: 0
     };
@@ -214,7 +205,7 @@ function createMaxCircle(feature, latlng, attributes){
 //making max circle markers
 function maxCircle (data, map, attributes){
 //adding these symbols to the map
-  L.geoJson(data, {
+  var maxLayer = L.geoJson(data, {
       pointToLayer: function(feature, latlng){
         //invokes createMaxCircle when maxCircle is called to create datalayer
         return createMaxCircle(feature, latlng, attributes);
@@ -232,20 +223,18 @@ function createPropSymbols(data, map, attributes){
     }).addTo(map);
   };
 //Creating cumstom UI controls for the map beyond zoom
-function createSliderOnMap (map, attributes,map2){
+function createSliderOnMap (map, attributes){
   var SequenceControl = L.Control.extend({
       options: {
           position: 'bottomleft'
           },
       //when this is added to the map create the container for the slider
-      onAdd: function (map) {
+      onAdd: function (map,attributes) {
           // create the control container div with a particular class name
           var container = L.DomUtil.create('div', 'slider');
           // ... initialize other DOM elements, add listeners, etc.
           //create range input element (slider)
            $(container).append('<input class="range-slider" type="range">');
-           //kill any mouse event listeners on the map
-           //NOT WORKING
            //kill any mouse event listeners on the map
           L.DomEvent.disableClickPropagation(container);
           return container;
@@ -264,24 +253,26 @@ function createLegend(map, attributes,response){
             // create the control container with a particular class name
             var container = L.DomUtil.create('div', 'legend');
             //legend Title
-            $(container).append("<p><b>Camp Populations in <span id=legendYear>"+attributes[0]+"</span></b></p>");
+            $(container).append("<p><b id=header>Refugee Camp Populations in <span id=legendYear>"+attributes[0]+"</span></b><br>(In Number of People)</p>");
             //add temporal legend div to container
-            $(container).append('<div id="temporal-legend">')
-
             //Step 1: start attribute legend svg string
-            var svg = '<svg id="attribute-legend" width: "150px">';
+            var svg = '<svg id="attribute-legend">';
 
             //array of circle names to base loop on
-            var circles = ["max", "mean", "min"];
-
+            var circles = {
+                absolute: 0,
+                max: 45,
+                mean: 65,
+                min: 90
+            };
         //Step 2: loop to add each circle and text to svg string
-        for (var i=0; i<circles.length; i++){
+        //loop to add each circle and text to svg string
+        for (var circle in circles){
             //circle string
-            svg += '<circle class="legend-circle" id="' + circles[i] +
-            '" fill-opacity=".4" fill="#ff7800" stroke="#000000"  cx=25%/>';
+            svg += '<circle class="legend-circle" id="' + circle + '" fill-opacity=".4" fill="#FFC125" cx="60"/>';
 
             //text string
-            svg += '<text id="' + circles[i] + '-text" x="65" y="60"></text>';
+            svg += '<text id="' + circle + '-text"fill="white" x="110" y="' + circles[circle]+'"></text>';
             };
         //close svg string
         svg += "</svg>";
@@ -293,14 +284,20 @@ function createLegend(map, attributes,response){
           for (var key in circleValues){
           //get the radius
           var radius = calcPropRadius(circleValues[key]);
+          // make circle only if its a min or a max value
+          // if (key.includes("m")
           //Step 3: assign the cy and r attributes based on the Key
           $(container).find('#'+ key).attr({
-              cy: 70-radius,
+              cy: 100-radius,
               r: radius,
                 });
+          //Step 4: add legend text
+          $(container).find('#'+key+'-text').text(Math.round(circleValues[key]/1000)*1000);
               };
-              //Step 4: add legend text
-              $(container).find('#'+key+'-text').text(circleValues[key] + " persons");
+          //make absolute max opaque
+          // $(container).find("absolute").attr({
+          //     fill: #000,
+          //       });
 
             return container;
         }
@@ -323,12 +320,20 @@ function getCircleValues(map, attribute, response){
     var min = Math.min.apply(null, values);
     //set mean round down
     var mean = Math.floor((min + max)/2);
+    var absolute = Number(250000)
 
     //return values as an object
     return {
-        max: max,
-        mean: mean,
-        min: min
+      absolute: absolute,
+      max: max,
+      mean: mean,
+      min: min
     };
 };
+//create toggle to turn max pop on/off
+function toggleLayers (map, attributes) {
+  getData (map, attributes);
+
+  L.control.layers().addTo(map);
+}
 $(document).ready(createMap);
