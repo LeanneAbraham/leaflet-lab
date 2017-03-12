@@ -147,7 +147,7 @@
         "2016": 83351,
         "2017": 69415,
         "Country": "Kenya",
-        "Camp": "Dagahaley,�Dadaab"
+        "Camp": "Dagahaley, Dadaab"
       },
       "geometry": {
         "type": "Point",
@@ -381,7 +381,7 @@
         "2016": 52663,
         "2017": 52472,
         "Country": "Mauritania",
-        "Camp": "Mb�ra"
+        "Camp": "Mbera"
       },
       "geometry": {
         "type": "Point",

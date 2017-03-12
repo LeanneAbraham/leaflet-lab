@@ -1,30 +1,31 @@
 /* Map of GeoJSON data from refcamps.geojson */
 //function to instantiate the Leaflet map
 function createMap(){
+    //sets bounds of map
+    var southWest = L.latLng(-90, -180),
+    northEast = L.latLng(90, 180),
+    bounds = L.latLngBounds(southWest, northEast);
     //create the map
     var map = L.map('mapid', {
         center: [15, 17],
         zoom: 3,
-        zoomControl: false
-        // layers:[maxLayer]
+        maxBounds: bounds,
+        maxBoundsViscosity:.7,
+        scrollWheelZoom: false
     });
-    //Reposition zoom controls
-    L.control.zoom({
-     position:'topleft'
-      }).addTo(map);
     //map.fitBounds([[40, -20],[-40, 100]]);
     //add OSM base tilelayer to map
     L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
     	attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
     	subdomains: 'abcd',
-    	maxZoom: 10
-
+    	maxZoom: 8,
+      minZoom: 3
       }).addTo(map);
     //call getData function
     // getData(map);
     getData (map);
     };
-//Step 1: Create new sequence controls aka the slider
+//Create new sequence controls aka the slider
 function createSequenceControls(map2, attributes){
     //create range input element (slider) type range turns the input into a slider
     createSliderOnMap (map2);
@@ -38,7 +39,6 @@ function createSequenceControls(map2, attributes){
     //creates slider buttons
       // $('.slider').append('<div id="button"><button class="skip" id="reverse">Back</button><button class="skip" id="forward">Forward</button></div>');
       //Step 5: input listener for slider
-      //THIS ISN'T WORKING
       $('.range-slider').on('input', function(){
           //Step 6: get the new index value
           var index = $(this).val();
@@ -68,8 +68,7 @@ function createSequenceControls(map2, attributes){
       //call outside of the click listeners the first time so the intial hover defaults to 2006
       updatePropSymbols (map2, attributes[0]);
   };
-//Step 10: Resize proportional symbols according to new attribute values
-//updates the sidebar as you move through the slider
+//Resize proportional symbols according to new attribute values
 //ONLY updates when you move through the slider
 function updatePropSymbols(map, attributes){
     map.eachLayer(function(layer){
@@ -107,10 +106,13 @@ function getData(map){
         success: function(response){
     //makes "attributes" equal to the process data response
     var attributes = processData(response);
-    //call function to create proportional symbols
+    //creates max circle on map
     maxCircle(response, map, attributes);
-    //calls the sequence controls
-    createSequenceControls(map, attributes);
+    //call function to create proportional symbols
+    createPropSymbols (response, map, attributes);
+    //calls the slider
+    createSequenceControls (map, attributes);
+    //creates the legend
     createLegend (map, attributes, response);
     //empty array to hold attributes
     function processData(data){
@@ -218,9 +220,8 @@ function maxCircle (data, map, attributes){
   var overlays = {
     "<div id='toggle'>Maximum<br>Camp</br>Populations</div>": maxLayer
   }
-  // .addTo(map);
-    createPropSymbols (data, map, attributes);
-    L.control.layers(null,overlays,{collapsed:false}).addTo(map);
+    L.control.layers(null,overlays,{collapsed:false})
+    .addTo(map);
 };
 //Add circle markers for point features to the map
 function createPropSymbols(data, map, attributes){
@@ -235,7 +236,7 @@ function createPropSymbols(data, map, attributes){
 function createSliderOnMap (map, attributes){
   var SequenceControl = L.Control.extend({
       options: {
-          position: 'bottomright'
+          position: 'bottomleft'
           },
       //when this is added to the map create the container for the slider
       onAdd: function (map,attributes) {
@@ -333,8 +334,4 @@ function getCircleValues(map, attribute, response){
       min: min
     };
 };
-//create toggle to turn max pop on/off
-// function toggleLayers (map, attributes) {
-//   L.control.layers().addTo(map);
-// }
 $(document).ready(createMap);
