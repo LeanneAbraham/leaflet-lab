@@ -73,7 +73,8 @@ function createSequenceControls(map2, attributes){
 function updatePropSymbols(map, attributes){
     map.eachLayer(function(layer){
       // createLegend (map, attributes);
-      if (layer.feature && layer.feature.properties[attributes] && !layer.max){
+      if (layer.feature && layer.feature.properties[attributes]
+        && !layer.max){
         //!layer.max is only applying this to the layers that max isn't true
           //access feature properties
           var props = layer.feature.properties;
@@ -184,7 +185,7 @@ function createMaxCircle(feature, latlng, attributes){
       color: "#FFF",
       weight: 1,
       opacity: 1,
-      fillOpacity: 0
+      fillOpacity: 0,
     };
     //creating blank arry to push attributes into
     var attValues = []
@@ -201,8 +202,10 @@ function createMaxCircle(feature, latlng, attributes){
     feature.properties.max = maxValue
     //Give each feature's circle marker a radius based on its attribute value
     options.radius = calcPropRadius(maxValue);
+
     //create circle marker layer
     var maxSymLayer = L.circleMarker(latlng, options);
+    //add class to style z value
     //adds max=true for all max layers
     maxSymLayer.max = true
     //return the circle marker to the L.geoJson pointToLayer option
@@ -210,27 +213,38 @@ function createMaxCircle(feature, latlng, attributes){
   };
 //making max circle markers
 function maxCircle (data, map, attributes){
-//adding these symbols to the map
+//adds max circles to the map
   var maxLayer = L.geoJson(data, {
       pointToLayer: function(feature, latlng){
         //invokes createMaxCircle when maxCircle is called to create datalayer
         return createMaxCircle(feature, latlng, attributes);
       }
   })
+  $("maxLayer").append('"class"="max"');
+  maxLayer.bringToBack();
+  //text for the max overlay toggle
   var overlays = {
     "<div id='toggle'>Maximum<br>Camp</br>Populations</div>": maxLayer
   }
-    L.control.layers(null,overlays,{collapsed:false})
+  //puts the toggle on the map
+    L.control.layers(null,overlays,{
+      collapsed:false,
+    })
     .addTo(map);
-};
+  };
 //Add circle markers for point features to the map
 function createPropSymbols(data, map, attributes){
 //create a Leaflet GeoJSON layer and add it to the map, this puts on the circle made in the point to layer function
-  L.geoJson(data, {
-    pointToLayer: function(feature, latlng){
+  var camps = L.geoJson(data, {
+      ///should send to front,
+    //  zIndexOffset: 1000,
+      pointToLayer: function(feature, latlng){
       return pointToLayer(feature, latlng, attributes, map);
       }
     }).addTo(map);
+    //should make these always on top
+    camps.bringToFront();
+    return (this);
   };
 //Creating cumstom UI controls for the map beyond zoom
 function createSliderOnMap (map, attributes){

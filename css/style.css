@@ -25,6 +25,11 @@
 #info h4 {
   text-align: left;
 }
+#credits {
+  text-align: center;
+  font-size: .8em;
+  padding: 10px 0px 0px 0px;
+}
 h1 {
   font-size: 3.5em
 }
@@ -36,6 +41,7 @@ body {
   font-family: sans-serif;
   max-width: 1100px;
   margin: auto;
+  padding: 0px 10px 10px 10px;
 }
 .range-slider {
   width: 90%;
